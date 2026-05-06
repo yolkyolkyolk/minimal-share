@@ -2,7 +2,8 @@
 
 import { StatusData, HouseholdData } from "@/lib/db";
 import { StatusToggle } from "./StatusToggle";
-import { format } from "date-fns";
+import { TextToggle } from "./TextToggle";
+import { format, isSaturday, isSunday } from "date-fns";
 import { ja } from "date-fns/locale";
 
 interface CardViewProps {
@@ -14,19 +15,20 @@ interface CardViewProps {
 }
 
 const ITEMS = [
-  { key: "work", label: "Work" },
-  { key: "eatOut", label: "Eat Out" },
-  { key: "stayOut", label: "Stay Out" },
-  { key: "invite", label: "Guest Day" },
-  { key: "guestStay", label: "Guest Night" },
-] as const;
+  { key: "work", label: "Work", states: [0, 1, 2] },
+  { key: "eatOut", label: "Eat Out", states: [0, 2] },
+  { key: "stayOut", label: "Stay Out", states: [0, 2] },
+  { key: "invite", label: "Guest Day", states: [0, 2] },
+  { key: "guestStay", label: "Guest Night", states: [0, 2] },
+];
 
 export function CardView({ dates, statuses, household, currentUserId, onStatusChange }: CardViewProps) {
   const getStatus = (userId: string, dateStr: string) => {
     return statuses.find((s) => s.userId === userId && s.date === dateStr) || {
       userId,
       date: dateStr,
-      work: 0,
+      work: 1,
+      backAt: "20-24",
       eatOut: 0,
       stayOut: 0,
       invite: 0,
@@ -40,10 +42,11 @@ export function CardView({ dates, statuses, household, currentUserId, onStatusCh
       {dates.map((date) => {
         const dateStr = format(date, "yyyy-MM-dd");
         const dayStr = format(date, "M月d日(E)", { locale: ja });
+        const dayColor = isSaturday(date) ? "text-sky-500" : isSunday(date) ? "text-rose-500" : "";
 
         return (
           <div key={dateStr} className="bg-card border border-line rounded-2xl p-4 shadow-sm">
-            <h3 className="text-lg font-bold mb-4 border-b border-line pb-2">{dayStr}</h3>
+            <h3 className={`text-lg font-bold mb-4 border-b border-line pb-2 ${dayColor}`}>{dayStr}</h3>
             <div className="flex flex-col gap-6">
               {household.members.map((memberId) => {
                 const status = getStatus(memberId, dateStr);
@@ -55,13 +58,26 @@ export function CardView({ dates, statuses, household, currentUserId, onStatusCh
                     </div>
                     <div className="flex items-center overflow-x-auto gap-4 pb-2">
                       {ITEMS.map((item) => (
-                        <div key={item.key} className="flex flex-col items-center gap-2 min-w-[60px] shrink-0">
-                          <span className="text-[10px] text-gray-500 whitespace-nowrap">{item.label}</span>
-                          <StatusToggle
-                            value={status[item.key as keyof typeof status] as number}
-                            onChange={(val) => onStatusChange(memberId, dateStr, item.key, val)}
-                            disabled={!isMe}
-                          />
+                        <div key={item.key} className="flex items-center gap-4">
+                          <div className="flex flex-col items-center gap-2 min-w-[60px] shrink-0">
+                            <span className="text-[10px] text-gray-500 whitespace-nowrap">{item.label}</span>
+                            <StatusToggle
+                              value={status[item.key as keyof typeof status] as number}
+                              onChange={(val) => onStatusChange(memberId, dateStr, item.key, val)}
+                              disabled={!isMe}
+                              states={item.states}
+                            />
+                          </div>
+                          {item.key === "work" && (
+                            <div className="flex flex-col items-center gap-2 min-w-[60px] shrink-0">
+                              <span className="text-[10px] text-gray-500 whitespace-nowrap">Back At/🕐</span>
+                              <TextToggle
+                                value={status.backAt || "20-24"}
+                                onChange={(val) => onStatusChange(memberId, dateStr, "backAt", val)}
+                                disabled={!isMe}
+                              />
+                            </div>
+                          )}
                         </div>
                       ))}
                       

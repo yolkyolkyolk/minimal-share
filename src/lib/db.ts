@@ -14,6 +14,7 @@ export interface StatusData {
   userId: string;
   date: string; // YYYY-MM-DD
   work: number;
+  backAt: string;
   eatOut: number;
   stayOut: number;
   invite: number;
@@ -90,7 +91,8 @@ export async function updateStatus(
     await setDoc(statusRef, {
       userId,
       date,
-      work: 0,
+      work: 1,
+      backAt: "20-24",
       eatOut: 0,
       stayOut: 0,
       invite: 0,

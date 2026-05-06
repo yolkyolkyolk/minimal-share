@@ -6,9 +6,10 @@ interface StatusToggleProps {
   value: number;
   onChange: (newValue: number) => void;
   disabled?: boolean;
+  states?: number[];
 }
 
-export function StatusToggle({ value, onChange, disabled }: StatusToggleProps) {
+export function StatusToggle({ value, onChange, disabled, states = [0, 1, 2] }: StatusToggleProps) {
   const [localValue, setLocalValue] = useState(value);
 
   // Sync with external value if it changes
@@ -18,7 +19,9 @@ export function StatusToggle({ value, onChange, disabled }: StatusToggleProps) {
 
   const handleClick = () => {
     if (disabled) return;
-    const newValue = (localValue + 1) % 3;
+    const currentIndex = states.indexOf(localValue) >= 0 ? states.indexOf(localValue) : 0;
+    const nextIndex = (currentIndex + 1) % states.length;
+    const newValue = states[nextIndex];
     setLocalValue(newValue);
     onChange(newValue);
   };
