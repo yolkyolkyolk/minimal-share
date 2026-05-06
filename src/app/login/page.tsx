@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 
@@ -10,12 +10,32 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      setError("パスワードを再設定するには、上にメールアドレスを入力してください。");
+      return;
+    }
+    setError("");
+    setResetMessage("");
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setResetMessage("パスワード再設定用のメールを送信しました。メールボックスをご確認ください。");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setResetMessage("");
     setLoading(true);
     try {
       if (isLogin) {
@@ -38,6 +58,7 @@ export default function LoginPage() {
           {isLogin ? "ログイン" : "新規登録"}
         </h1>
         {error && <p className="mb-4 text-sm text-red-500 text-center">{error}</p>}
+        {resetMessage && <p className="mb-4 text-sm text-green-600 text-center">{resetMessage}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">メールアドレス</label>
@@ -60,6 +81,18 @@ export default function LoginPage() {
               minLength={6}
             />
           </div>
+          {isLogin && (
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={handleResetPassword}
+                disabled={loading}
+                className="text-xs text-gray-500 hover:text-foreground"
+              >
+                パスワードを忘れた場合はこちら
+              </button>
+            </div>
+          )}
           <button
             type="submit"
             disabled={loading}
