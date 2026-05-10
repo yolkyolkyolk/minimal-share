@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { getOrInitializeHousehold, getStatusesForMonth, updateStatus, cleanupOldStatuses, StatusData, HouseholdData } from "@/lib/db";
+import { getOrInitializeHousehold, getStatusesForMonth, updateStatus, cleanupOldStatuses, StatusData, HouseholdData, getUserName, updateUserName } from "@/lib/db";
 import { CardView } from "@/components/CardView";
 import { GridView } from "@/components/GridView";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from "date-fns";
@@ -20,6 +20,7 @@ export default function Home() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<"card" | "grid">("card");
   const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -37,6 +38,9 @@ export default function Home() {
 
       // Clean up old data in the background
       cleanupOldStatuses(hh.id).catch(console.error);
+
+      const name = await getUserName(user.uid);
+      setUserName(name);
 
       const yearMonth = format(date, "yyyy-MM");
       const st = await getStatusesForMonth(hh.id, yearMonth);
@@ -94,7 +98,17 @@ export default function Home() {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-line px-4 py-4 space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold">Minimal Share</h1>
-          <button onClick={() => auth.signOut()} className="text-sm text-gray-500 hover:text-foreground">ログアウト</button>
+          <div className="flex items-center gap-4">
+            <input 
+              type="text" 
+              value={userName} 
+              onChange={(e) => setUserName(e.target.value)} 
+              onBlur={() => updateUserName(user.uid, userName)}
+              placeholder="表示名を設定"
+              className="text-sm bg-transparent border-b border-line focus:outline-none focus:border-gray-400 w-24 px-1"
+            />
+            <button onClick={() => auth.signOut()} className="text-sm text-gray-500 hover:text-foreground">ログアウト</button>
+          </div>
         </div>
         
         <div className="flex items-center justify-between gap-2 overflow-x-auto pb-2">

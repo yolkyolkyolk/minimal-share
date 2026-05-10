@@ -70,7 +70,7 @@ export function CardView({ dates, statuses, household, currentUserId, onStatusCh
                           </div>
                           {item.key === "work" && (
                             <div className="flex flex-col items-center gap-2 min-w-[60px] shrink-0">
-                              <span className="text-[10px] text-gray-500 whitespace-nowrap">Back At/🕐</span>
+                              <span className="text-[10px] text-gray-500 whitespace-nowrap">Back At</span>
                               <TextToggle
                                 value={status.backAt || "20-24"}
                                 onChange={(val) => onStatusChange(memberId, dateStr, "backAt", val)}

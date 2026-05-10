@@ -2,6 +2,7 @@ import { db } from "./firebase";
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, writeBatch } from "firebase/firestore";
 
 export interface UserData {
+  name?: string;
   households: string[];
 }
 
@@ -27,8 +28,23 @@ export async function ensureUserRecord(userId: string) {
   const userRef = doc(db, "users", userId);
   const snap = await getDoc(userRef);
   if (!snap.exists()) {
-    await setDoc(userRef, { households: [] });
+    await setDoc(userRef, { name: "", households: [] });
   }
+}
+
+export async function getUserName(userId: string): Promise<string> {
+  const userRef = doc(db, "users", userId);
+  const snap = await getDoc(userRef);
+  if (snap.exists()) {
+    const data = snap.data() as UserData;
+    return data.name || "";
+  }
+  return "";
+}
+
+export async function updateUserName(userId: string, name: string) {
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, { name });
 }
 
 // For demo purposes, we will auto-create a household if the user has none.
