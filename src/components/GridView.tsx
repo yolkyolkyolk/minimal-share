@@ -12,6 +12,7 @@ interface GridViewProps {
   statuses: StatusData[];
   household: HouseholdData;
   currentUserId: string;
+  memberNames: Record<string, string>;
   onStatusChange: (userId: string, dateStr: string, field: string, value: number | string) => void;
 }
 
@@ -23,7 +24,7 @@ const ITEMS = [
   { key: "guestStay", label: "👥🌃", states: [0, 2] },
 ];
 
-export function GridView({ dates, statuses, household, currentUserId, onStatusChange }: GridViewProps) {
+export function GridView({ dates, statuses, household, currentUserId, memberNames, onStatusChange }: GridViewProps) {
   const getStatus = (userId: string, dateStr: string) => {
     return statuses.find((s) => s.userId === userId && s.date === dateStr) || {
       userId,
@@ -50,7 +51,7 @@ export function GridView({ dates, statuses, household, currentUserId, onStatusCh
               const isMe = memberId === currentUserId;
               return (
                 <th key={memberId} colSpan={ITEMS.length + 2} className={`p-2 border-b border-line border-r last:border-r-0 ${isMe ? 'bg-highlight' : ''}`}>
-                  {isMe ? "あなた" : `メンバー`}
+                  {isMe ? "あなた" : (memberNames[memberId] || "メンバー")}
                 </th>
               );
             })}

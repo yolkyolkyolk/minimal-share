@@ -11,6 +11,7 @@ interface CardViewProps {
   statuses: StatusData[];
   household: HouseholdData;
   currentUserId: string;
+  memberNames: Record<string, string>;
   onStatusChange: (userId: string, dateStr: string, field: string, value: number | string) => void;
 }
 
@@ -22,7 +23,7 @@ const ITEMS = [
   { key: "guestStay", label: "Guest Night", states: [0, 2] },
 ];
 
-export function CardView({ dates, statuses, household, currentUserId, onStatusChange }: CardViewProps) {
+export function CardView({ dates, statuses, household, currentUserId, memberNames, onStatusChange }: CardViewProps) {
   const getStatus = (userId: string, dateStr: string) => {
     return statuses.find((s) => s.userId === userId && s.date === dateStr) || {
       userId,
@@ -54,7 +55,7 @@ export function CardView({ dates, statuses, household, currentUserId, onStatusCh
                 return (
                   <div key={memberId} className={`flex flex-col gap-3 ${isMe ? "bg-highlight p-3 rounded-xl" : "px-3"}`}>
                     <div className="text-sm font-semibold text-gray-500">
-                      {isMe ? "あなた" : `メンバー`}
+                      {isMe ? "あなた" : (memberNames[memberId] || "メンバー")}
                     </div>
                     <div className="flex items-center overflow-x-auto gap-4 pb-2">
                       {ITEMS.map((item) => (

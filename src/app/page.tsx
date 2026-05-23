@@ -21,6 +21,7 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"card" | "grid">("card");
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
+  const [memberNames, setMemberNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -41,6 +42,12 @@ export default function Home() {
 
       const name = await getUserName(user.uid);
       setUserName(name);
+
+      const names: Record<string, string> = {};
+      for (const mId of hh.members) {
+        names[mId] = await getUserName(mId);
+      }
+      setMemberNames(names);
 
       const yearMonth = format(date, "yyyy-MM");
       const st = await getStatusesForMonth(hh.id, yearMonth);
@@ -156,6 +163,7 @@ export default function Home() {
             statuses={statuses}
             household={household}
             currentUserId={user.uid}
+            memberNames={memberNames}
             onStatusChange={handleStatusChange}
           />
         ) : (
@@ -164,6 +172,7 @@ export default function Home() {
             statuses={statuses}
             household={household}
             currentUserId={user.uid}
+            memberNames={memberNames}
             onStatusChange={handleStatusChange}
           />
         )}

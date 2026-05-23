@@ -83,6 +83,9 @@ export async function GET(request: Request) {
       messageContent += `\n`;
     }
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL || 'minimal-share.vercel.app'}`;
+    messageContent += `\n🔗 **編集はこちらから:** ${appUrl}\n`;
+
     // Send to Discord
     const response = await fetch(discordWebhookUrl, {
       method: 'POST',
