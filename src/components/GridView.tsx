@@ -47,7 +47,8 @@ export function GridView({ dates, statuses, household, currentUserId, memberName
             <th className="sticky left-0 z-30 bg-card p-2 min-w-[80px] border-r border-line border-b">
               日付
             </th>
-            {household.members.map((memberId) => {
+            {/* Only show the current user in Grid View */}
+            {[currentUserId].map((memberId) => {
               const isMe = memberId === currentUserId;
               return (
                 <th key={memberId} colSpan={ITEMS.length + 2} className={`p-2 border-b border-line border-r last:border-r-0 ${isMe ? 'bg-highlight' : ''}`}>
@@ -58,7 +59,7 @@ export function GridView({ dates, statuses, household, currentUserId, memberName
           </tr>
           <tr>
             <th className="sticky left-0 z-30 bg-card border-r border-line border-b"></th>
-            {household.members.map((memberId) => {
+            {[currentUserId].map((memberId) => {
               const isMe = memberId === currentUserId;
               return (
                 <Fragment key={`${memberId}-headers`}>
@@ -97,7 +98,7 @@ export function GridView({ dates, statuses, household, currentUserId, memberName
                 <td className={`sticky left-0 z-10 bg-card border-r border-b border-line p-2 text-center font-medium shadow-[1px_0_0_var(--line)] whitespace-nowrap ${dayColor}`}>
                   {dayStr}
                 </td>
-                {household.members.map((memberId) => {
+                {[currentUserId].map((memberId) => {
                   const isMe = memberId === currentUserId;
                   const status = getStatus(memberId, dateStr);
 
