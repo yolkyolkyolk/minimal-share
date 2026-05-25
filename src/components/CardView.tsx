@@ -49,7 +49,8 @@ export function CardView({ dates, statuses, household, currentUserId, memberName
           <div key={dateStr} className="bg-card border border-line rounded-2xl p-4 shadow-sm">
             <h3 className={`text-lg font-bold mb-4 border-b border-line pb-2 ${dayColor}`}>{dayStr}</h3>
             <div className="flex flex-col gap-6">
-              {household.members.map((memberId) => {
+              {/* Only show the current user in Card View */}
+              {[currentUserId].map((memberId) => {
                 const status = getStatus(memberId, dateStr);
                 const isMe = memberId === currentUserId;
                 return (
