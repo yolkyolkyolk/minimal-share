@@ -3,11 +3,12 @@ import { adminDb } from '@/lib/firebase-admin';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   if (!adminDb) return new NextResponse('Firebase Admin not initialized', { status: 500 });
 
   try {
+    const params = await props.params;
     const hhId = params.id;
     const hhSnap = await adminDb.collection('households').doc(hhId).get();
     if (!hhSnap.exists) {

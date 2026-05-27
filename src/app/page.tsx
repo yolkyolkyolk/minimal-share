@@ -55,6 +55,23 @@ export default function Home() {
 
       const yearMonth = format(date, "yyyy-MM");
       const st = await getStatusesForMonth(hh.id, yearMonth);
+      
+      // Auto-restore any missing members who have statuses
+      const activeUserIds = Array.from(new Set(st.map(s => s.userId)));
+      const missingMembers = activeUserIds.filter(uid => !hh.members.includes(uid));
+      if (missingMembers.length > 0) {
+        const newMembers = [...hh.members, ...missingMembers];
+        setHousehold({ name: hh.name, members: newMembers });
+        
+        // Fetch names for restored members
+        try {
+          const namesRes = await fetch(`/api/household/${hh.id}/names`);
+          if (namesRes.ok) {
+            setMemberNames(await namesRes.json());
+          }
+        } catch (e) {}
+      }
+      
       setStatuses(st);
     } catch (err) {
       console.error(err);
