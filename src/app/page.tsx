@@ -53,25 +53,24 @@ export default function Home() {
         console.warn("Failed to fetch member names via API", e);
       }
 
+      // Call backend to auto-restore any valid missing members
+      try {
+        const restoreRes = await fetch(`/api/household/${hh.id}/restore`);
+        if (restoreRes.ok) {
+          const restoreData = await restoreRes.json();
+          if (restoreData.restored > 0) {
+            setHousehold({ name: hh.name, members: restoreData.members });
+            // Fetch updated names
+            const namesRes = await fetch(`/api/household/${hh.id}/names`);
+            if (namesRes.ok) {
+              setMemberNames(await namesRes.json());
+            }
+          }
+        }
+      } catch (e) {}
+
       const yearMonth = format(date, "yyyy-MM");
       const st = await getStatusesForMonth(hh.id, yearMonth);
-      
-      // Auto-restore any missing members who have statuses
-      const activeUserIds = Array.from(new Set(st.map(s => s.userId)));
-      const missingMembers = activeUserIds.filter(uid => !hh.members.includes(uid));
-      if (missingMembers.length > 0) {
-        const newMembers = [...hh.members, ...missingMembers];
-        setHousehold({ name: hh.name, members: newMembers });
-        
-        // Fetch names for restored members
-        try {
-          const namesRes = await fetch(`/api/household/${hh.id}/names`);
-          if (namesRes.ok) {
-            setMemberNames(await namesRes.json());
-          }
-        } catch (e) {}
-      }
-      
       setStatuses(st);
     } catch (err) {
       console.error(err);
