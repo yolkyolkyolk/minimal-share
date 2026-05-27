@@ -43,11 +43,15 @@ export default function Home() {
       const name = await getUserName(user.uid);
       setUserName(name);
 
-      const names: Record<string, string> = {};
-      for (const mId of hh.members) {
-        names[mId] = await getUserName(mId);
+      try {
+        const namesRes = await fetch(`/api/household/${hh.id}/names`);
+        if (namesRes.ok) {
+          const names = await namesRes.json();
+          setMemberNames(names);
+        }
+      } catch (e) {
+        console.warn("Failed to fetch member names via API", e);
       }
-      setMemberNames(names);
 
       const yearMonth = format(date, "yyyy-MM");
       const st = await getStatusesForMonth(hh.id, yearMonth);

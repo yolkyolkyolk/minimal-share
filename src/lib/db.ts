@@ -33,11 +33,16 @@ export async function ensureUserRecord(userId: string) {
 }
 
 export async function getUserName(userId: string): Promise<string> {
-  const userRef = doc(db, "users", userId);
-  const snap = await getDoc(userRef);
-  if (snap.exists()) {
-    const data = snap.data() as UserData;
-    return data.name || "";
+  try {
+    if (!userId) return "";
+    const userRef = doc(db, "users", userId);
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      const data = snap.data() as UserData;
+      return data.name || "";
+    }
+  } catch (err) {
+    console.warn("Failed to fetch user name", err);
   }
   return "";
 }
