@@ -59,7 +59,7 @@ export default function Home() {
         if (restoreRes.ok) {
           const restoreData = await restoreRes.json();
           if (restoreData.restored > 0) {
-            setHousehold({ name: hh.name, members: restoreData.members });
+            setHousehold({ name: "Household", members: restoreData.members });
             // Fetch updated names
             const namesRes = await fetch(`/api/household/${hh.id}/names`);
             if (namesRes.ok) {
